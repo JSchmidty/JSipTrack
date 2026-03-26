@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:m="clr-namespace:SipTrack.Models"
+             x:Class="SipTrack.Views.SessionDetailPage"
+             Title="Session Detail"
+             BackgroundColor="#0D0D0D">
+  <ScrollView>
+    <VerticalStackLayout Padding="16" Spacing="16">
+      <Frame BackgroundColor="#1A1A2E" CornerRadius="20" Padding="20">
+        <Grid ColumnDefinitions="*,Auto">
+          <VerticalStackLayout Grid.Column="0" Spacing="6">
+            <Label Text="{Binding Session.DateDisplay}" FontSize="22" FontAttributes="Bold" TextColor="White"/>
+            <Label Text="{Binding Session.TimeDisplay}" FontSize="14" TextColor="#AAAAAA"/>
+            <Label Text="{Binding Session.DrinkCount, StringFormat='{0} drinks'}" FontSize="14" TextColor="White"/>
+            <Label Text="{Binding Session.DurationDisplay, StringFormat='Duration: {0}'}" FontSize="14" TextColor="White"/>
+            <Label Text="{Binding Session.TotalCalories, StringFormat='{0:F0} cal'}" FontSize="13" TextColor="#AAAAAA"/>
+          </VerticalStackLayout>
+          <Frame Grid.Column="1" BackgroundColor="#F44336" CornerRadius="16" Padding="14,10" VerticalOptions="Start">
+            <VerticalStackLayout Spacing="2">
+              <Label Text="PEAK BAC" FontSize="10" TextColor="White" HorizontalTextAlignment="Center" FontAttributes="Bold"/>
+              <Label Text="{Binding Session.PeakBac, StringFormat='{0:F3}'}"
+                     FontSize="26" FontAttributes="Bold" TextColor="White" HorizontalTextAlignment="Center"/>
+            </VerticalStackLayout>
+          </Frame>
+        </Grid>
+      </Frame>
+      <Label Text="Drinks Logged" FontSize="18" FontAttributes="Bold" TextColor="White"/>
+      <CollectionView ItemsSource="{Binding Session.Drinks}" SelectionMode="None">
+        <CollectionView.ItemTemplate>
+          <DataTemplate x:DataType="m:Drink">
+            <Frame BackgroundColor="#1A1A2E" CornerRadius="14" Padding="14" Margin="0,4">
+              <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+                <Label Grid.Column="0" Text="{Binding CategoryIcon}" FontSize="28" VerticalOptions="Center" Margin="0,0,12,0"/>
+                <VerticalStackLayout Grid.Column="1" Spacing="2">
+                  <Label Text="{Binding Name}" FontSize="15" FontAttributes="Bold" TextColor="White"/>
+                  <Label Text="{Binding LoggedAt, StringFormat='{0:h:mm tt}'}" FontSize="12" TextColor="#AAAAAA"/>
+                  <Label Text="{Binding StandardDrinks, StringFormat='{0:F2} std drinks'}" FontSize="11" TextColor="#888888"/>
+                </VerticalStackLayout>
+                <Label Grid.Column="2" Text="{Binding DisplayAbv}" FontSize="13" TextColor="#4CAF50" VerticalOptions="Center" Margin="0,0,8,0"/>
+                <Label Grid.Column="3" Text="{Binding DisplayVolume}" FontSize="13" TextColor="#AAAAAA" VerticalOptions="Center"/>
+              </Grid>
+            </Frame>
+          </DataTemplate>
+        </CollectionView.ItemTemplate>
+      </CollectionView>
+    </VerticalStackLayout>
+  </ScrollView>
+</ContentPage>

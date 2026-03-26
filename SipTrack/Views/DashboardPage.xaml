@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:SipTrack.ViewModels"
+             xmlns:ctrl="clr-namespace:SipTrack.Controls"
+             x:Class="SipTrack.Views.DashboardPage"
+             x:DataType="vm:DashboardViewModel"
+             Title="SipTrack"
+             Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,*" BackgroundColor="#0D0D0D">
+
+        <!-- Top Bar -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" Padding="16,48,16,8">
+            <VerticalStackLayout Grid.Column="0">
+                <Label Text="SipTrack" FontSize="24" FontAttributes="Bold" TextColor="White"/>
+                <Label Text="{Binding AppMode, StringFormat='Mode: {0}'}" FontSize="12" TextColor="#AAAAAA"/>
+            </VerticalStackLayout>
+            <Frame Grid.Column="1" BackgroundColor="#2196F3" CornerRadius="12" Padding="8,4"
+                   IsVisible="{Binding IsDesignatedDriver}" Margin="0,0,8,0">
+                <Label Text="DD" TextColor="White" FontSize="12" FontAttributes="Bold"/>
+            </Frame>
+            <Button Grid.Column="2" Text="⚙" TextColor="White" BackgroundColor="Transparent"
+                    FontSize="20" Clicked="OnSettingsClicked"/>
+        </Grid>
+
+        <!-- Main Content -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="16" Spacing="16">
+
+                <!-- BAC Gauge Card -->
+                <Frame BackgroundColor="#1A1A2E" CornerRadius="20" Padding="20" HasShadow="True">
+                    <VerticalStackLayout Spacing="12">
+                        <ctrl:BACGaugeView Value="{Binding CurrentBAC}" MaxValue="0.20"
+                                           HeightRequest="220" WidthRequest="220"
+                                           HorizontalOptions="Center"/>
+                        <Label Text="{Binding CurrentBAC, StringFormat='{0:F3}'}"
+                               FontSize="48" FontAttributes="Bold" HorizontalTextAlignment="Center"
+                               TextColor="{Binding BACColorHex}"/>
+                        <Label Text="{Binding StatusLabel}" FontSize="18" FontAttributes="Bold"
+                               HorizontalTextAlignment="Center" TextColor="{Binding BACColorHex}"/>
+                        <Label Text="{Binding BACZoneLabel}" FontSize="13" TextColor="#AAAAAA"
+                               HorizontalTextAlignment="Center"/>
+                        <Label Text="{Binding SafeToDriveIn, StringFormat='Safe to drive in: {0:h\\h m\\m}'}"
+                               FontSize="13" TextColor="#FFC107" HorizontalTextAlignment="Center"
+                               IsVisible="{Binding IsSafeToDrive, Converter={StaticResource InverseBoolConverter}}"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Stats Row -->
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                    <Frame Grid.Column="0" BackgroundColor="#1A1A2E" CornerRadius="16" Padding="12">
+                        <VerticalStackLayout>
+                            <Label Text="Drinks" FontSize="11" TextColor="#AAAAAA" HorizontalTextAlignment="Center"/>
+                            <Label Text="{Binding DrinkCount}" FontSize="24" FontAttributes="Bold"
+                                   TextColor="White" HorizontalTextAlignment="Center"/>
+                        </VerticalStackLayout>
+                    </Frame>
+                    <Frame Grid.Column="1" BackgroundColor="#1A1A2E" CornerRadius="16" Padding="12">
+                        <VerticalStackLayout>
+                            <Label Text="Calories" FontSize="11" TextColor="#AAAAAA" HorizontalTextAlignment="Center"/>
+                            <Label Text="{Binding CaloriesConsumed, StringFormat='{0:F0}'}"
+                                   FontSize="24" FontAttributes="Bold" TextColor="White" HorizontalTextAlignment="Center"/>
+                        </VerticalStackLayout>
+                    </Frame>
+                    <Frame Grid.Column="2" BackgroundColor="#1A1A2E" CornerRadius="16" Padding="12">
+                        <VerticalStackLayout>
+                            <Label Text="Time" FontSize="11" TextColor="#AAAAAA" HorizontalTextAlignment="Center"/>
+                            <Label Text="{Binding SessionDuration}"
+                                   FontSize="20" FontAttributes="Bold" TextColor="White" HorizontalTextAlignment="Center"/>
+                        </VerticalStackLayout>
+                    </Frame>
+                </Grid>
+
+                <!-- Safety Actions -->
+                <Frame BackgroundColor="#1A1A2E" CornerRadius="16" Padding="16">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Safety" FontSize="16" FontAttributes="Bold" TextColor="White"/>
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                            <Button Grid.Column="0" Text="Emergency Alert"
+                                    BackgroundColor="#F44336" TextColor="White" CornerRadius="12"
+                                    Command="{Binding EmergencyAlertCommand}"/>
+                            <Button Grid.Column="1" Text="Call Uber"
+                                    BackgroundColor="#000000" TextColor="White" CornerRadius="12"
+                                    Command="{Binding CallUberCommand}"/>
+                        </Grid>
+                        <Button Text="I'm the Designated Driver"
+                                BackgroundColor="#2196F3" TextColor="White" CornerRadius="12"
+                                Command="{Binding ToggleDesignatedDriverCommand}"/>
+                        <Button Text="End Session" BackgroundColor="Transparent" TextColor="#AAAAAA"
+                                BorderColor="#AAAAAA" BorderWidth="1" CornerRadius="12"
+                                Command="{Binding EndSessionCommand}"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="#4CAF50"/>
+
+                <!-- FAB spacer -->
+                <BoxView HeightRequest="80" Color="Transparent"/>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- FAB -->
+        <Button Grid.Row="1" Text="+ Log Drink" BackgroundColor="#4CAF50" TextColor="White"
+                CornerRadius="28" HeightRequest="56" WidthRequest="148"
+                FontAttributes="Bold" FontSize="15"
+                VerticalOptions="End" HorizontalOptions="End"
+                Margin="0,0,24,32" Clicked="OnLogDrinkClicked"/>
+    </Grid>
+</ContentPage>

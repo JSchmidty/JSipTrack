@@ -1,0 +1,48 @@
+version: '3.9'
+
+services:
+  api:
+    build: .
+    container_name: siptrack-api
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://siptrack:siptrackpass@postgres:5432/siptrack_db
+      - PORT=3000
+      - API_KEY=${API_KEY:-changeme}
+      - CORS_ORIGIN=${CORS_ORIGIN:-*}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - siptrack-net
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: siptrack-postgres
+    environment:
+      POSTGRES_USER: siptrack
+      POSTGRES_PASSWORD: siptrackpass
+      POSTGRES_DB: siptrack_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./src/db/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U siptrack -d siptrack_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - siptrack-net
+    ports:
+      - "5432:5432"  # Remove in production
+
+volumes:
+  postgres_data:
+
+networks:
+  siptrack-net:
+    driver: bridge

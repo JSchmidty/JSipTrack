@@ -1,0 +1,53 @@
+# .NET MAUI / dotnet
+bin/
+obj/
+*.user
+*.suo
+.vs/
+_ReSharper*/
+*.resharper
+.idea/
+
+# NuGet
+packages/
+*.nupkg
+!.nuget/NuGet.Config
+
+# iOS
+*.ipa
+*.dSYM.zip
+*.dSYM
+DerivedData/
+*.xcworkspace/xcuserdata/
+*.xcuserstate
+Pods/
+
+# Android
+*.apk
+*.aab
+*.keystore
+local.properties
+
+# Node.js Backend
+Backend/node_modules/
+Backend/.env
+Backend/.env.local
+Backend/dist/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+
+# SQLite databases (local dev)
+*.db3
+*.sqlite
+*.sqlite3

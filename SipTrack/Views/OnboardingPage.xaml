@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SipTrack.Views.OnboardingPage"
+             BackgroundColor="#0D0D0D"
+             Shell.NavBarIsVisible="False">
+  <Grid RowDefinitions="*,Auto">
+    <CarouselView x:Name="OnboardingCarousel" Grid.Row="0" IsSwipeEnabled="True">
+      <CarouselView.ItemsSource>
+        <x:Array Type="{x:Type x:String}">
+          <x:String>Welcome</x:String>
+          <x:String>Profile</x:String>
+          <x:String>Safety</x:String>
+        </x:Array>
+      </CarouselView.ItemsSource>
+      <CarouselView.ItemTemplate>
+        <DataTemplate>
+          <Grid>
+            <!-- Step 1: Welcome -->
+            <VerticalStackLayout IsVisible="{Binding ., Converter={StaticResource StringEqualConverter}, ConverterParameter=Welcome}"
+                                 Padding="32" Spacing="20" VerticalOptions="Center">
+              <Label Text="🍻" FontSize="80" HorizontalTextAlignment="Center"/>
+              <Label Text="Welcome to SipTrack" FontSize="28" FontAttributes="Bold"
+                     TextColor="White" HorizontalTextAlignment="Center"/>
+              <Label Text="Track your drinks, monitor your BAC in real time, and make smarter decisions."
+                     FontSize="16" TextColor="#AAAAAA" HorizontalTextAlignment="Center"/>
+              <Label Text="Your privacy is protected. All data stays on your device."
+                     FontSize="14" TextColor="#888888" HorizontalTextAlignment="Center"/>
+            </VerticalStackLayout>
+            <!-- Step 2: Profile -->
+            <VerticalStackLayout IsVisible="{Binding ., Converter={StaticResource StringEqualConverter}, ConverterParameter=Profile}"
+                                 Padding="32" Spacing="20" VerticalOptions="Center">
+              <Label Text="Your Profile" FontSize="28" FontAttributes="Bold"
+                     TextColor="White" HorizontalTextAlignment="Center"/>
+              <Label Text="We need your body stats to calculate accurate BAC estimates using the Widmark formula."
+                     FontSize="16" TextColor="#AAAAAA" HorizontalTextAlignment="Center"/>
+              <Entry x:Name="WeightEntry" Placeholder="Weight (lbs)" Keyboard="Numeric"
+                     PlaceholderColor="#666666" TextColor="White" BackgroundColor="#1A1A2E"/>
+              <Picker x:Name="GenderPicker" Title="Select Gender" TextColor="White" BackgroundColor="#1A1A2E">
+                <Picker.Items><x:String>Male</x:String><x:String>Female</x:String><x:String>Other</x:String></Picker.Items>
+              </Picker>
+              <Entry x:Name="AgeEntry" Placeholder="Age" Keyboard="Numeric"
+                     PlaceholderColor="#666666" TextColor="White" BackgroundColor="#1A1A2E"/>
+            </VerticalStackLayout>
+            <!-- Step 3: Safety -->
+            <VerticalStackLayout IsVisible="{Binding ., Converter={StaticResource StringEqualConverter}, ConverterParameter=Safety}"
+                                 Padding="32" Spacing="20" VerticalOptions="Center">
+              <Label Text="Safety First" FontSize="28" FontAttributes="Bold"
+                     TextColor="White" HorizontalTextAlignment="Center"/>
+              <Label Text="Add an emergency contact. They'll receive an SMS if you need help."
+                     FontSize="16" TextColor="#AAAAAA" HorizontalTextAlignment="Center"/>
+              <Entry x:Name="EmergencyNameEntry" Placeholder="Emergency contact name"
+                     PlaceholderColor="#666666" TextColor="White" BackgroundColor="#1A1A2E"/>
+              <Entry x:Name="EmergencyPhoneEntry" Placeholder="+1 555 000 0000" Keyboard="Telephone"
+                     PlaceholderColor="#666666" TextColor="White" BackgroundColor="#1A1A2E"/>
+              <Label Text="Legal drive limit in USA is 0.08 BAC. We'll warn you before you reach it."
+                     FontSize="13" TextColor="#AAAAAA" HorizontalTextAlignment="Center"/>
+            </VerticalStackLayout>
+          </Grid>
+        </DataTemplate>
+      </CarouselView.ItemTemplate>
+    </CarouselView>
+    <!-- Navigation Buttons -->
+    <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto" Padding="24,16" ColumnSpacing="16">
+      <Button Grid.Column="0" Text="Skip" TextColor="#AAAAAA" BackgroundColor="Transparent" Clicked="OnSkipClicked"/>
+      <IndicatorView Grid.Column="1" HorizontalOptions="Center" VerticalOptions="Center"
+                     IndicatorColor="#444444" SelectedIndicatorColor="#4CAF50" Count="3"/>
+      <Button Grid.Column="2" Text="Next" BackgroundColor="#4CAF50" TextColor="White"
+              CornerRadius="12" Clicked="OnNextClicked"/>
+    </Grid>
+  </Grid>
+</ContentPage>

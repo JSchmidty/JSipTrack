@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#0D0D0D"/>
+  <text x="200" y="180" font-size="80" text-anchor="middle" fill="#4CAF50">🍺</text>
+  <text x="200" y="260" font-size="40" font-weight="bold" text-anchor="middle" fill="#FFFFFF">SipTrack</text>
+  <text x="200" y="300" font-size="18" text-anchor="middle" fill="#AAAAAA">Know Your Limit</text>
+</svg>

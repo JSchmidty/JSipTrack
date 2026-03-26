@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:SipTrack.ViewModels"
+             xmlns:m="clr-namespace:SipTrack.Models"
+             x:Class="SipTrack.Views.HistoryPage"
+             x:DataType="vm:HistoryViewModel"
+             Title="History"
+             BackgroundColor="#0D0D0D">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Export CSV" Command="{Binding ExportCsvCommand}"/>
+    </ContentPage.ToolbarItems>
+
+    <RefreshView Command="{Binding LoadHistoryCommand}" IsRefreshing="{Binding IsBusy}">
+        <ScrollView>
+            <VerticalStackLayout Padding="16" Spacing="16">
+
+                <Label Text="This Week" FontSize="20" FontAttributes="Bold" TextColor="White"/>
+                <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="6">
+                    <Frame Grid.Column="0" BackgroundColor="#1A1A2E" CornerRadius="14" Padding="8">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="{Binding TotalDrinksThisWeek}" FontSize="22" FontAttributes="Bold"
+                                   TextColor="White" HorizontalTextAlignment="Center"/>
+                            <Label Text="Drinks" FontSize="9" TextColor="#AAAAAA" HorizontalTextAlignment="Center"/>
+                        </VerticalStackLayout>
+                    </Frame>
+                    <Frame Grid.Column="1" BackgroundColor="#1A1A2E" CornerRadius="14" Padding="8">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="{Binding DrinkFreeDaysThisWeek}" FontSize="22" FontAttributes="Bold"
+                                   TextColor="#4CAF50" HorizontalTextAlignment="Center"/>
+                            <Label Text="DF Days" FontSize="9" TextColor="#AAAAAA" HorizontalTextAlignment="Center"/>
+                        </VerticalStackLayout>
+                    </Frame>
+                    <Frame Grid.Column="2" BackgroundColor="#1A1A2E" CornerRadius="14" Padding="8">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="{Binding CurrentStreak}" FontSize="22" FontAttributes="Bold"
+                                   TextColor="#FF9800" HorizontalTextAlignment="Center"/>
+                            <Label Text="Streak" FontSize="9" TextColor="#AAAAAA" HorizontalTextAlignment="Center"/>
+                        </VerticalStackLayout>
+                    </Frame>
+                    <Frame Grid.Column="3" BackgroundColor="#1A1A2E" CornerRadius="14" Padding="8">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="{Binding MaxBacThisWeek, StringFormat='{0:F3}'}" FontSize="18" FontAttributes="Bold"
+                                   TextColor="#F44336" HorizontalTextAlignment="Center"/>
+                            <Label Text="Peak BAC" FontSize="9" TextColor="#AAAAAA" HorizontalTextAlignment="Center"/>
+                        </VerticalStackLayout>
+                    </Frame>
+                </Grid>
+
+                <Label Text="Sessions" FontSize="20" FontAttributes="Bold" TextColor="White"/>
+                <CollectionView ItemsSource="{Binding AllSessions}" SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="m:DrinkSession">
+                            <Frame BackgroundColor="#1A1A2E" CornerRadius="16" Padding="14" Margin="0,4">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HistoryViewModel}}, Path=SelectSessionCommand}"
+                                        CommandParameter="{Binding .}"/>
+                                </Frame.GestureRecognizers>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                        <Label Text="{Binding DateDisplay}" FontSize="16" FontAttributes="Bold" TextColor="White"/>
+                                        <Label Text="{Binding TimeDisplay}" FontSize="12" TextColor="#AAAAAA"/>
+                                        <Label Text="{Binding DrinkCount, StringFormat='{0} drinks'}" FontSize="12" TextColor="#AAAAAA"/>
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="1" Text="{Binding PeakBac, StringFormat='Peak {0:F3}'}"
+                                           FontSize="14" FontAttributes="Bold" TextColor="#F44336"
+                                           VerticalOptions="Center"/>
+                                </Grid>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+    </RefreshView>
+</ContentPage>
