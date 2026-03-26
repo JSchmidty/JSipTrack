@@ -239,7 +239,7 @@ GitHub token is stored in `~/.git-credentials`. Remote is already configured.
 ### 🔲 Next Steps (for a future Ace session)
 1. **Platform-specific DrinkRepository implementations** — SQLDelight Android driver, iOS NativeDriver
 2. **WatchConnectivity** — phone↔watch data sync (Android DataLayer, iOS WatchConnectivity)
-3. **iOS ComposeUIViewController entry point** — wire ComposeView properly in ContentView.swift
+3. ✅ **iOS ComposeUIViewController entry point** — MainViewController.kt, ContentView.swift wired, Koin init, Podfile, Info.plist, entitlements (2026-03-26)
 4. **HealthKit / Health Connect** integration
 5. **Barcode scanner** — ML Kit (Android) / Vision (iOS)
 6. **Backend**: Populate beverage DB (TTB COLA data ingest)
@@ -249,4 +249,4 @@ GitHub token is stored in `~/.git-credentials`. Remote is already configured.
 
 ---
 
-*Last updated: 2026-03-26 by Ace ♠️ — KMP migration complete*
+*Last updated: 2026-03-26 by Ace ♠️ — iOS Compose Multiplatform entry point wiring complete (Task #2)*

@@ -1,0 +1,16 @@
+# Podfile for SipTrack iOS App
+# The KMP shared framework (SipTrackKit) is integrated via CocoaPods
+# using the Kotlin Cocoapods Gradle plugin.
+#
+# USER_TODO: Replace 'YOUR_TEAM_ID' with your Apple Developer Team ID
+
+platform :ios, '17.0'
+
+use_frameworks!
+
+target 'iosApp' do
+  # SipTrackKit is the compiled KMP shared module.
+  # Run './gradlew :shared:podPublishDebugXCFramework' to generate it.
+  # Then run 'pod install' in this directory.
+  pod 'SipTrackKit', :path => '../shared'
+end

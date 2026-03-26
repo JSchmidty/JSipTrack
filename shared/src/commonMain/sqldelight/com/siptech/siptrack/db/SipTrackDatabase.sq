@@ -1,0 +1,94 @@
+-- UserProfile table (singleton, id always = 1)
+CREATE TABLE UserProfileEntity (
+    id INTEGER PRIMARY KEY NOT NULL DEFAULT 1,
+    weight_kg REAL NOT NULL DEFAULT 70.0,
+    gender TEXT NOT NULL DEFAULT 'OTHER',
+    age INTEGER NOT NULL DEFAULT 30,
+    metabolic_rate REAL NOT NULL DEFAULT 0.015,
+    personal_limit_bac REAL NOT NULL DEFAULT 0.06,
+    drive_limit_bac REAL NOT NULL DEFAULT 0.08,
+    emergency_contact_name TEXT NOT NULL DEFAULT '',
+    emergency_contact_phone TEXT NOT NULL DEFAULT '',
+    prefer_metric INTEGER NOT NULL DEFAULT 0,
+    enable_notifications INTEGER NOT NULL DEFAULT 1,
+    enable_health_kit INTEGER NOT NULL DEFAULT 0,
+    app_mode TEXT NOT NULL DEFAULT 'NORMAL',
+    onboarding_complete INTEGER NOT NULL DEFAULT 0
+);
+
+-- DrinkSession table
+CREATE TABLE DrinkSessionEntity (
+    id TEXT PRIMARY KEY NOT NULL,
+    start_time INTEGER NOT NULL,
+    end_time INTEGER,
+    mode TEXT NOT NULL DEFAULT 'NORMAL',
+    notes TEXT
+);
+
+-- Drink table
+CREATE TABLE DrinkEntity (
+    id TEXT PRIMARY KEY NOT NULL,
+    session_id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    category TEXT NOT NULL,
+    abv_percent REAL NOT NULL,
+    volume_oz REAL NOT NULL,
+    logged_at INTEGER NOT NULL,
+    product_id TEXT,
+    notes TEXT,
+    is_micro_dose INTEGER NOT NULL DEFAULT 0,
+    FOREIGN KEY (session_id) REFERENCES DrinkSessionEntity(id) ON DELETE CASCADE
+);
+
+-- Queries for UserProfile
+getProfile:
+SELECT * FROM UserProfileEntity WHERE id = 1;
+
+upsertProfile:
+INSERT OR REPLACE INTO UserProfileEntity VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+-- Queries for DrinkSession
+getAllSessions:
+SELECT * FROM DrinkSessionEntity ORDER BY start_time DESC;
+
+getSession:
+SELECT * FROM DrinkSessionEntity WHERE id = ?;
+
+getActiveSession:
+SELECT * FROM DrinkSessionEntity WHERE end_time IS NULL ORDER BY start_time DESC LIMIT 1;
+
+insertSession:
+INSERT INTO DrinkSessionEntity (id, start_time, end_time, mode, notes)
+VALUES (?, ?, ?, ?, ?);
+
+updateSession:
+UPDATE DrinkSessionEntity SET end_time = ?, notes = ? WHERE id = ?;
+
+endSession:
+UPDATE DrinkSessionEntity SET end_time = ? WHERE id = ?;
+
+deleteSession:
+DELETE FROM DrinkSessionEntity WHERE id = ?;
+
+-- Queries for Drink
+getDrinksForSession:
+SELECT * FROM DrinkEntity WHERE session_id = ? ORDER BY logged_at ASC;
+
+insertDrink:
+INSERT INTO DrinkEntity (id, session_id, name, category, abv_percent, volume_oz, logged_at, product_id, notes, is_micro_dose)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+updateDrink:
+UPDATE DrinkEntity SET name = ?, abv_percent = ?, volume_oz = ?, notes = ? WHERE id = ?;
+
+deleteDrink:
+DELETE FROM DrinkEntity WHERE id = ?;
+
+deleteAllDrinks:
+DELETE FROM DrinkEntity;
+
+deleteAllSessions:
+DELETE FROM DrinkSessionEntity;
+
+deleteProfile:
+DELETE FROM UserProfileEntity;

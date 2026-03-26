@@ -187,3 +187,45 @@ See [LICENSE](LICENSE) for full text.
 ---
 
 *Built with ♠️ by Ace at Sip Tech*
+
+---
+
+## 📱 iOS Setup (Compose Multiplatform)
+
+> For full platform setup details see [`SETUP_REQUIRED.md`](SETUP_REQUIRED.md)
+
+SipTrack uses **Kotlin Multiplatform + Compose Multiplatform** for iOS. The Swift layer is intentionally thin — all UI and business logic lives in Kotlin.
+
+### Entry Point Architecture
+
+```
+SipTrackiOSApp.swift (@main)
+  └── Koin DI init (KoinIosHelperKt.doInitKoin())
+  └── ContentView.swift
+        └── ComposeView (UIViewControllerRepresentable)
+              └── MainViewControllerKt.MainViewController()
+                    └── SipTrackApp() [shared Compose UI]
+```
+
+### Build Steps
+
+**Prerequisites:** macOS, Xcode 15+, CocoaPods, JDK 17+
+
+```bash
+# 1. Generate KMP XCFrameworks (from project root)
+./gradlew :shared:podPublishDebugXCFramework
+./gradlew :composeApp:podPublishDebugXCFramework
+
+# 2. Install pods
+cd iosApp
+pod install
+
+# 3. Open workspace (always .xcworkspace, not .xcodeproj)
+open iosApp.xcworkspace
+```
+
+Then in Xcode:
+- Set your **Team ID** (Signing & Capabilities)
+- Enable **HealthKit** capability
+- Select a simulator or device → **⌘+R**
+
