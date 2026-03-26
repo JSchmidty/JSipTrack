@@ -16,28 +16,31 @@
 
 ## The Project: SipTrack
 
-**SipTrack** is a BAC (Blood Alcohol Content) tracking app for iPhone and Apple Watch, built for Sip Tech.
+**SipTrack** is a BAC (Blood Alcohol Content) tracking app for iPhone, Android, Apple Watch, and Samsung Galaxy Watch.
 
 - **Repo:** `https://github.com/JSchmidty/JSipTrack`
 - **Local path:** `/workspace/JSipTrack`
-- **Status:** Initial build complete and pushed (2026-03-26)
+- **Status:** KMP migration complete (2026-03-26). MAUI archived.
 - **Branch:** `main`
 
 ---
 
-## Tech Stack
+## ✅ ARCHITECTURE: Kotlin Multiplatform (KMP)
 
-| Layer | Technology |
-|-------|-----------|
-| Mobile framework | **.NET MAUI** (C#, .NET 8) — targets iOS + Android |
-| Architecture | **MVVM** with `CommunityToolkit.Mvvm` |
-| UI | **MAUI XAML** + MAUI Graphics (custom controls) |
-| Local database | **SQLite** via `sqlite-net-pcl` |
-| Charts | **LiveChartsCore.SkiaSharpView.Maui** |
-| Notifications | **Plugin.LocalNotification** |
-| Backend API | **Node.js** (Express) + **PostgreSQL** |
-| Backend auth | API key (`x-api-key` header) |
-| Containerization | **Docker** / `docker-compose.yml` |
+The app was migrated from .NET MAUI to KMP. The MAUI code is archived at `Archive_MAUI/SipTrack_MAUI/`.
+
+| Target | Framework | Language |
+|--------|-----------|----------|
+| Shared business logic | Kotlin Multiplatform (KMP) | Kotlin |
+| Android phone | Compose Multiplatform | Kotlin |
+| iPhone | Compose Multiplatform → iOS | Kotlin (thin Swift entry) |
+| Samsung Galaxy Watch | Jetpack Compose for Wear OS | Kotlin |
+| Apple Watch | SwiftUI (thin shell over KMP) | Swift + Kotlin |
+| Backend API | Ktor 3.x (Node.js — keep as-is) | Node.js |
+| Local DB | SQLDelight | Kotlin |
+| Networking | Ktor HttpClient | Kotlin |
+| Health data | HealthKMP | Kotlin (future) |
+| DI | Koin | Kotlin |
 
 ---
 
@@ -45,71 +48,78 @@
 
 ```
 JSipTrack/
-├── SipTrack/                         # .NET MAUI app
-│   ├── SipTrack.csproj               # NuGet deps, target frameworks
-│   ├── MauiProgram.cs                # DI container setup
-│   ├── App.xaml / App.xaml.cs        # App entry + first-run check
-│   ├── AppShell.xaml / .cs           # Tab navigation shell (4 tabs)
-│   ├── Models/
-│   │   ├── Drink.cs                  # Drink entity, StandardDrinks calc
-│   │   ├── DrinkSession.cs           # Session + AppMode enum
-│   │   └── UserProfile.cs            # Weight, gender, Widmark R, limits
-│   ├── ViewModels/
-│   │   ├── BaseViewModel.cs          # INotifyPropertyChanged base
-│   │   ├── DashboardViewModel.cs     # 60s timer, BAC refresh, commands
-│   │   ├── LogDrinkViewModel.cs      # Quick presets + custom entry
-│   │   ├── HistoryViewModel.cs       # Session groups, streak counter
-│   │   └── SettingsViewModel.cs      # Profile save, reset
-│   ├── Views/
-│   │   ├── DashboardPage.xaml        # Main screen: gauge, BAC, stats, FAB
-│   │   ├── LogDrinkPage.xaml         # Quick grid + custom form + search
-│   │   ├── HistoryPage.xaml          # Session list grouped by week
-│   │   ├── SessionDetailPage.xaml    # BAC curve chart + drink list
-│   │   ├── SettingsPage.xaml         # All profile/prefs fields
-│   │   └── OnboardingPage.xaml       # 3-step first-run flow
-│   ├── Services/
-│   │   ├── BACCalculatorService.cs   # Widmark formula engine (core logic)
-│   │   ├── DatabaseService.cs        # SQLite CRUD, CSV export, reset
-│   │   ├── NotificationService.cs    # Local push, emergency SMS, Uber link
-│   │   └── BeverageApiService.cs     # HTTP client for backend search API
-│   ├── Controls/
-│   │   └── BACGaugeView.cs           # Custom IDrawable 270° speedometer
-│   ├── Converters/
-│   │   └── BACToColorConverter.cs    # BAC→Color, InverseBool, StringEqual
-│   ├── Resources/
-│   │   ├── Styles/AppStyles.xaml     # Dark theme (#0D0D0D), colors, fonts
-│   │   └── Images/                   # Tab icons (home, plus, chart, gear)
-│   └── Platforms/
-│       ├── iOS/
-│       │   ├── Info.plist            # NSHealthKit, camera, contacts keys
-│       │   ├── Entitlements.plist    # HealthKit entitlement
-│       │   └── AppDelegate.cs
-│       └── Android/
-│           ├── AndroidManifest.xml   # All required permissions
-│           └── MainActivity.cs
+├── Archive_MAUI/
+│   └── SipTrack_MAUI/       ← .NET MAUI code (archived, do not edit)
 │
-├── Backend/                          # Node.js beverage DB API
-│   ├── src/
-│   │   ├── index.js                  # Express server, middleware, routes
-│   │   ├── routes/beverages.js       # GET search, GET :id, POST create
-│   │   └── db/
-│   │       ├── connection.js         # pg Pool setup
-│   │       └── schema.sql            # Tables + seed data
-│   ├── package.json
-│   ├── .env.example                  # All required env vars
-│   ├── Dockerfile
-│   └── docker-compose.yml            # App + Postgres services
+├── Backend/                  ← Node.js + PostgreSQL API (VALID — don't touch)
 │
-├── README.md                         # Full project docs
-├── SETUP_REQUIRED.md                 # 14 USER_TODOs before shipping
-└── ACE_CONTEXT.md                    # ← this file
+├── Branding/                 ← Branding agent owns this (don't touch)
+│
+├── shared/                   ← KMP Shared Module — ALL business logic
+│   ├── build.gradle.kts
+│   └── src/
+│       ├── commonMain/
+│       │   ├── kotlin/com/siptech/siptrack/
+│       │   │   ├── models/          ← Drink, DrinkSession, UserProfile, Product
+│       │   │   ├── engine/          ← BACCalculator, FlavorTagger
+│       │   │   ├── viewmodels/      ← Dashboard, LogDrink, History, Settings VMs
+│       │   │   ├── repository/      ← DrinkRepository (interface), BeverageApiService
+│       │   │   └── di/              ← Koin AppModule
+│       │   └── sqldelight/          ← SipTrack.sq schema
+│       ├── androidMain/             ← Android-specific implementations
+│       ├── iosMain/                 ← iOS-specific implementations
+│       └── watchosMain/             ← watchOS-specific implementations
+│
+├── composeApp/               ← Compose Multiplatform — shared phone UI
+│   ├── build.gradle.kts
+│   └── src/commonMain/kotlin/com/siptech/siptrack/ui/
+│       ├── SipTrackApp.kt           ← Root navigation + tabs
+│       ├── theme/SipTrackTheme.kt   ← Dark theme, brand colors
+│       └── screens/
+│           ├── DashboardScreen.kt
+│           ├── LogDrinkScreen.kt
+│           ├── HistoryScreen.kt
+│           ├── SettingsScreen.kt
+│           └── OnboardingScreen.kt
+│
+├── androidApp/               ← Android phone app (thin wrapper)
+│   ├── build.gradle.kts
+│   └── src/main/
+│       ├── kotlin/.../MainActivity.kt
+│       └── AndroidManifest.xml
+│
+├── iosApp/                   ← iPhone app (thin Swift shell)
+│   └── iosApp/
+│       ├── SipTrackApp.swift
+│       ├── ContentView.swift        ← Hosts ComposeUIViewController
+│       └── Info.plist
+│
+├── wearApp/                  ← Samsung Galaxy Watch (Wear OS)
+│   ├── build.gradle.kts
+│   └── src/main/
+│       ├── kotlin/.../wear/presentation/
+│       │   ├── MainActivity.kt
+│       │   └── WearSipTrackApp.kt
+│       └── AndroidManifest.xml
+│
+├── watchosApp/               ← Apple Watch (SwiftUI thin shell)
+│   └── watchosApp/
+│       ├── SipTrackWatchApp.swift
+│       ├── WatchContentView.swift
+│       └── Info.plist
+│
+├── gradle/
+│   └── libs.versions.toml    ← Version catalog
+├── settings.gradle.kts
+├── build.gradle.kts
+└── ACE_CONTEXT.md            ← this file
 ```
 
 ---
 
 ## Core BAC Engine — Widmark Formula
 
-**File:** `SipTrack/Services/BACCalculatorService.cs`
+**File:** `shared/src/commonMain/kotlin/com/siptech/siptrack/engine/BACCalculator.kt`
 
 ```
 BAC = ((AlcoholGrams) / (BodyWeightGrams × WidmarkR)) × 100 − (MetabolicRate × HoursElapsed)
@@ -117,29 +127,29 @@ BAC = ((AlcoholGrams) / (BodyWeightGrams × WidmarkR)) × 100 − (MetabolicRate
 
 - `AlcoholGrams` = VolumeOz × 29.5735 × (ABV/100) × 0.789
 - `BodyWeightGrams` = WeightKg × 1000
-- `WidmarkR`: Male = 0.68, Female = 0.55, Other = 0.60
-- `MetabolicRate`: default 0.015/hr (configurable in Settings)
+- `WidmarkR`: Male = 0.68, Female = 0.55, Other = 0.615
+- `MetabolicRate`: default 0.015/hr (configurable)
 - BAC never goes below 0.000
 
 **Key methods:**
-- `CalculateCurrentBAC(profile, drinks, now)` → double
-- `EstimateSoberTime(profile, drinks, now)` → DateTime
-- `EstimateSafeToDriveTime(profile, drinks, now, legalLimit)` → DateTime
-- `GenerateBACCurve(profile, drinks, start, end, intervalMin)` → IEnumerable<(DateTime, double)>
-- `CalculateStandardDrinks(volumeOz, abvPercent)` → double
-- `EstimateCalories(drinks)` → double (7 cal/gram of alcohol)
+- `calculateCurrentBAC(profile, drinks, now)` → Double
+- `estimateSoberTime(profile, drinks, now)` → Instant
+- `estimateSafeToDriveTime(profile, drinks, now, legalLimit)` → Instant
+- `generateBACCurve(profile, drinks, start, end, intervalMin)` → List<Pair<Instant, Double>>
+- `calculateStandardDrinks(volumeOz, abvPercent)` → Double
+- `getBACStatus(bac, driveLimit)` → BACStatus
 
 ---
 
-## App Modes (AppMode enum in DrinkSession.cs)
+## App Modes
 
 | Mode | Description |
 |------|-------------|
-| `Normal` | Full UI, all features |
-| `Discreet` | Minimal UI, looks like a countdown timer — no "alcohol" text |
-| `Professional` | Micro-dose presets (0.25, 0.5 standard drinks), separate weekly exposure dashboard |
-| `Recovery` | Zero-drink focus, streak celebration, positive messaging, no BAC gauge |
-| `DesignatedDriver` | Auto-logged as 0 drinks, shows "DD Mode Active" badge |
+| `NORMAL` | Full UI, all features |
+| `DISCREET` | Minimal UI — no "alcohol" text visible |
+| `PROFESSIONAL` | Micro-dose presets, tasting focus |
+| `RECOVERY` | Zero-drink focus, streak celebration |
+| `DESIGNATED_DRIVER` | DD mode, auto-logs 0 drinks |
 
 ---
 
@@ -147,96 +157,46 @@ BAC = ((AlcoholGrams) / (BodyWeightGrams × WidmarkR)) × 100 − (MetabolicRate
 
 | BAC Range | Color | Meaning |
 |-----------|-------|---------|
-| 0.00–0.039 | 🟢 Green `#2ECC71` | Safe to drive |
+| 0.00–0.039 | 🟢 Green `#2ECC71` | Safe |
 | 0.04–0.079 | 🟡 Yellow `#F39C12` | Caution |
-| 0.08+ | 🔴 Red `#E74C3C` | Do NOT drive (US legal limit) |
-
-Drive limit is configurable (default 0.08 US, 0.05 in many other countries).
+| 0.08+ | 🔴 Red `#E74C3C` | Over limit |
 
 ---
 
-## Backend API Endpoints
+## Key Versions (gradle/libs.versions.toml)
 
-Base URL: `http://localhost:3000` (configured via `DATABASE_URL` env)
+| Library | Version |
+|---------|---------|
+| Kotlin | 2.0.21 |
+| AGP | 8.7.3 |
+| Compose Multiplatform | 1.7.3 |
+| Ktor | 3.0.3 |
+| SQLDelight | 2.0.2 |
+| Koin | 4.0.0 |
+| Coroutines | 1.9.0 |
+
+---
+
+## Backend API (Node.js — unchanged)
+
+Base URL: `http://localhost:3000`
 
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/api/v1/health` | Health check |
 | GET | `/api/v1/beverages/search?q=&category=&limit=` | Full-text product search |
-| GET | `/api/v1/beverages/:id` | Single product by UUID |
+| GET | `/api/v1/beverages/:id` | Single product |
 | POST | `/api/v1/beverages` | Create product (API key required) |
 
 **Auth:** `x-api-key` header on write endpoints.
 
 ---
 
-## Database Schema (PostgreSQL — Backend)
+## SQLDelight Schema (Local DB)
 
-Key tables (see `Backend/src/db/schema.sql` for full DDL):
-- **`products`** — beverages (id UUID, name, brand_id, category enum, abv, description, flavor_profile[], status)
-- **`brands`** — brand directory (id, name, parent_company, country)
-- **`cocktails`** — cocktail recipes (id, name, category, base_spirit, method, instructions, abv_estimated)
-- **`cocktail_ingredients`** — join table with quantities and units
-- **`ingredients`** — normalized ingredient dictionary
+File: `shared/src/commonMain/sqldelight/com/siptech/siptrack/db/SipTrack.sq`
 
-Category enum: `beer | wine | spirit | hard_seltzer | rtd_cocktail | cider | mead | sake | other`
-
----
-
-## Local SQLite Schema (Mobile — DatabaseService.cs)
-
-Tables: `UserProfile`, `DrinkSession`, `Drink`
-
-Key relationships:
-- Each `Drink` has a `SessionId` FK → `DrinkSession`
-- `UserProfile` is a singleton (only one row, Id = 1)
-
----
-
-## Quick Drink Presets (LogDrinkViewModel.cs)
-
-| Name | ABV | Volume | Standard Drinks |
-|------|-----|--------|----------------|
-| Beer | 5% | 12 oz | ~1.0 |
-| Wine | 12% | 5 oz | ~1.0 |
-| Shot | 40% | 1.5 oz | ~1.0 |
-| Cocktail | 15% | 4 oz | ~1.0 |
-| Micro Taste | 40% | 0.5 oz | ~0.33 |
-
----
-
-## Key User Personas (from design docs)
-
-The app is designed for 25 personas. The most critical groups to keep in mind:
-
-| Group | Persona Example | Key Needs |
-|-------|----------------|-----------|
-| Data nerds | Marcus Chen, Derek Nguyen | Charts, BAC curve, JSON export |
-| Safety-conscious | Bob Fitzgerald, Miguel Santos | Large text, drive-safe countdown, simple UI |
-| Professionals | Jorge Mendez (bartender), Sam Kowalski (sommelier) | Micro-dose mode, professional dashboard |
-| Wellness trackers | Megan O'Brien, Aiden Murphy | HealthKit, weekly goals |
-| Recovery users | Terrence Jackson | Zero-drink streak, no shame, positive tone |
-| Accessibility | Simone Beaumont (paraplegic) | Voice Control, large tap targets, one-hand |
-| Discreet users | Destiny Williams, Benny Okafor | Watch-first, hidden app, fake notification |
-| Medical | Dr. Priya Sharma, Dr. Rebecca Liu | Clinical accuracy, data export, patient sharing |
-| Breastfeeding | Dr. Fatima Al-Hassan | Breast milk clearance timer |
-
----
-
-## SETUP_REQUIRED (Before Publishing to App Store)
-
-Items needing human action (see `SETUP_REQUIRED.md` for full detail):
-
-1. Apple Developer Account — enroll at developer.apple.com
-2. Bundle ID — set in `SipTrack.csproj` (currently `com.siptech.siptrack`)
-3. iOS Provisioning Profile — Xcode or manual
-4. HealthKit entitlement — enable in Apple Developer portal
-5. Push notification certificate — APNs setup
-6. Android Keystore — for Play Store signing
-7. Backend: set `DATABASE_URL` in `.env`
-8. Backend: generate and set `API_KEY`
-9. Emergency SMS — requires native contacts permission grant
-10. Uber deep link — works with Uber app installed; no API key needed for basic launch
+Tables: `UserProfileEntity`, `DrinkSessionEntity`, `DrinkEntity`
 
 ---
 
@@ -257,28 +217,36 @@ GitHub token is stored in `~/.git-credentials`. Remote is already configured.
 
 ## What's Done / What's Next
 
-### ✅ Completed (2026-03-26)
-- Full .NET MAUI app scaffolded (54 files)
-- BAC Calculator (Widmark) fully implemented
-- All 5 app modes implemented
-- All 6 screens built with XAML
-- Custom BAC gauge (BACGaugeView)
-- SQLite database layer
-- Emergency/safety features (SMS, Uber, notifications)
-- Node.js + PostgreSQL backend with seed data
-- Docker setup
-- README + SETUP_REQUIRED docs
+### ✅ Completed (2026-03-26) — KMP Migration
+- MAUI code archived to `Archive_MAUI/SipTrack_MAUI/`
+- Root Gradle files + `libs.versions.toml` version catalog
+- **shared/** KMP module:
+  - Models: Drink, DrinkSession, UserProfile, Product (all Kotlin/Serializable)
+  - Engine: BACCalculator (Widmark), FlavorTagger (150+ keywords)
+  - ViewModels: Dashboard, LogDrink, History, Settings
+  - Repository: DrinkRepository interface + BeverageApiService (Ktor)
+  - DI: Koin AppModule
+  - SQLDelight schema: UserProfileEntity, DrinkSessionEntity, DrinkEntity
+- **composeApp/** Compose Multiplatform shared phone UI:
+  - SipTrackApp.kt (root nav with 3 tabs)
+  - DashboardScreen, LogDrinkScreen, HistoryScreen, SettingsScreen, OnboardingScreen
+  - SipTrackTheme (dark, brand colors)
+- **androidApp/** — thin Android wrapper (MainActivity)
+- **iosApp/** — thin Swift shell (SipTrackApp.swift + ContentView.swift)
+- **wearApp/** — Wear OS Samsung Galaxy Watch (WearSipTrackApp.kt)
+- **watchosApp/** — Apple Watch SwiftUI thin shell (WatchContentView.swift)
 
-### 🔲 Possible Next Steps
-- Apple Watch companion app (WatchKit / watchOS)
-- Beverage barcode scanning (ML Kit / Vision)
-- HealthKit read/write integration (actual Swift bridge or MAUI plugin)
-- CloudKit sync for multi-device
-- Populate beverage database (TTB COLA data ingest)
-- UI polish / animations
-- App Store submission prep
-- TestFlight beta setup
+### 🔲 Next Steps (for a future Ace session)
+1. **Platform-specific DrinkRepository implementations** — SQLDelight Android driver, iOS NativeDriver
+2. **WatchConnectivity** — phone↔watch data sync (Android DataLayer, iOS WatchConnectivity)
+3. **iOS ComposeUIViewController entry point** — wire ComposeView properly in ContentView.swift
+4. **HealthKit / Health Connect** integration
+5. **Barcode scanner** — ML Kit (Android) / Vision (iOS)
+6. **Backend**: Populate beverage DB (TTB COLA data ingest)
+7. **CloudKit sync** (iOS multi-device)
+8. **App Store / Play Store** submission prep
+9. **TestFlight beta** setup
 
 ---
 
-*Last updated: 2026-03-26 by Ace ♠️*
+*Last updated: 2026-03-26 by Ace ♠️ — KMP migration complete*

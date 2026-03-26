@@ -1,53 +1,34 @@
-# .NET MAUI / dotnet
-bin/
-obj/
-*.user
-*.suo
-.vs/
-_ReSharper*/
-*.resharper
+# KMP build outputs
+build/
+.gradle/
+local.properties
+*.iml
 .idea/
+captures/
+.externalNativeBuild/
+.cxx/
+*.orig
 
-# NuGet
-packages/
-*.nupkg
-!.nuget/NuGet.Config
-
-# iOS
-*.ipa
-*.dSYM.zip
-*.dSYM
-DerivedData/
-*.xcworkspace/xcuserdata/
-*.xcuserstate
+# CocoaPods
 Pods/
+*.xcworkspace
+Podfile.lock
+
+# iOS DerivedData
+DerivedData/
+*.xcuserstate
+
+# Gradle wrapper
+!gradle/wrapper/gradle-wrapper.jar
 
 # Android
 *.apk
 *.aab
-*.keystore
-local.properties
+*.ap_
+/local.properties
 
-# Node.js Backend
-Backend/node_modules/
-Backend/.env
-Backend/.env.local
-Backend/dist/
-
-# Logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# OS
+# MacOS
 .DS_Store
-.DS_Store?
-._*
-Thumbs.db
-ehthumbs.db
 
-# SQLite databases (local dev)
-*.db3
-*.sqlite
-*.sqlite3
+# Kotlin
+kotlin-js-store/
